@@ -46,6 +46,53 @@ public final class LazyScoreboard {
         playerStats.get(player).put(key, lineText);
     }
 
+    /**
+     * Sets a custom line on the scoreboard with padding to reach a total length.
+     * Aligns left or right based on the leftAlign flag.
+     */
+    public void setStat(Player player, String key, String lineText, int totalLength, boolean leftAlign) {
+        if (!playerStats.containsKey(player)) {
+            setupScoreboard(player);
+        }
+
+        // Trim if too long
+        if (lineText.length() > totalLength) {
+            lineText = lineText.substring(0, totalLength);
+        }
+
+        // Pad with spaces
+        int padding = totalLength - lineText.length();
+        String paddedLine = leftAlign
+                ? lineText + " ".repeat(padding)
+                : " ".repeat(padding) + lineText;
+
+        playerStats.get(player).put(key, paddedLine);
+    }
+
+    /**
+     * Adds a blank line to the scoreboard for the given player.
+     * Automatically generates a unique key and blank entry.
+     */
+    public void addBlankLine(Player player) {
+        if (!playerStats.containsKey(player)) {
+            setupScoreboard(player);
+        }
+
+        LinkedHashMap<String, String> stats = playerStats.get(player);
+
+        // Generate a unique blank line using color codes
+        String blankLine = ChatColor.RESET.toString() + ChatColor.values()[stats.size() % ChatColor.values().length];
+
+        // Generate a unique key internally
+        String key;
+        int counter = 0;
+        do {
+            key = "__blank_" + counter++;
+        } while (stats.containsKey(key));
+
+        stats.put(key, blankLine);
+    }
+
     public void updateStats(Player player) {
         if (!playerBoards.containsKey(player)) {
             setupScoreboard(player);
